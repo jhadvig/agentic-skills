@@ -1,36 +1,24 @@
 # product-lifecycle skill eval test cases
 #
-# These test cases simulate real CVO proposal requests containing readiness
-# data with OLM operator lifecycle information. The agent must use the
-# product-lifecycle skill to cross-reference operators against the Red Hat
-# Product Life Cycle API.
+# Each test case exercises the product-lifecycle skill against the
+# Red Hat Product Life Cycle API. Ground truth comes from the live API.
 #
-# The queries use the exact format CVO proposals send to the agent — metadata
-# block + readiness JSON. Ground truth comes from the live PLC API.
 
-# Test 1: Full proposal request with 5 OLM operators.
-# The agent must parse the readiness JSON, extract operator package names,
-# and check lifecycle status against the target OCP version.
+# Test 1: Simulate proposal request with 5 OLM operators.
+# Batch check — 5 operators, count which have lifecycle data.
 - name: plc_proposal_olm_batch_check
   query: |
-    Current version: OCP 4.21.5
-    Target version: OCP 4.21.16
-    Channel: stable-4.21
-    Update type: Patch
-    Update path: Recommended
+    Use the product-lifecycle skill to look up lifecycle data for
+    each of these 5 operators against OCP 4.21:
 
-    ## Cluster Readiness Data
-
-    The olm_operator_lifecycle check found 5 operators:
     - compliance-operator v1.9.0 (channel: stable, package: compliance-operator)
     - cluster-logging v6.5.1 (channel: stable-6.5, package: cluster-logging)
     - devworkspace-operator v0.41.0 (channel: fast, package: devworkspace-operator)
     - openshift-pipelines-operator-rh v1.22.0 (channel: latest, package: openshift-pipelines-operator-rh)
     - web-terminal v1.16.0 (channel: fast, package: web-terminal)
 
-    Use the product-lifecycle skill to run an OLM operator lifecycle check
-    for ALL 5 operators against OCP 4.21. Report how many operators have
-    lifecycle data available and how many do not.
+    For each operator, check if the Product Life Cycle API has lifecycle data.
+    Report the total checked, how many have data, and how many do not.
   schema:
     type: object
     properties:
@@ -50,7 +38,7 @@
   expected:
     olm_check_ran: true
     operators_checked: 5
-    operators_without_lifecycle_data: 3
+    operators_without_lifecycle_data: 2
 
 # Test 2: Verify cluster-logging lifecycle status specifically.
 # cluster-logging v6.5 is "Full Support" and compatible with OCP 4.21.
@@ -59,8 +47,10 @@
     A cluster upgrade proposal from OCP 4.21.5 to 4.21.16 shows
     cluster-logging v6.5.1 is installed (package: cluster-logging).
 
-    Use the product-lifecycle skill to check: is cluster-logging compatible
-    with OCP 4.21? What is its current lifecycle status?
+    Use the product-lifecycle skill to lookup cluster-logging
+    (package: cluster-logging) and report whether it was found,
+    its lifecycle status, and whether it is compatible with OCP 4.21.
+
   schema:
     type: object
     properties:
@@ -109,11 +99,12 @@
 # by product name ("compliance operator") does. The agent may use either approach.
 - name: plc_compliance_operator_status
   query: >
-    During an upgrade readiness check, the compliance-operator v1.9.0 was
-    found installed (package: compliance-operator).
+    The compliance-operator v1.9.0 was found installed (package: compliance-operator)
+    in the cluster.
 
     Use the product-lifecycle skill to check the lifecycle status of
-    compliance-operator v1.9. Is it currently supported?
+    compliance-operator v1.9. Report whether it was found and its current lifecycle
+    status.
   schema:
     type: object
     properties:
@@ -136,7 +127,8 @@
     target OCP version 4.21 is still in full support.
 
     Use the product-lifecycle skill to look up "Red Hat OpenShift
-    Container Platform" and check version 4.21's lifecycle status.
+    Container Platform" and check version 4.21's. Report whether
+    it was found and its current lifecycle status.
   schema:
     type: object
     properties:
@@ -157,7 +149,7 @@
   query: >
     Use the product-lifecycle skill to check the lifecycle status
     of Red Hat OpenShift Container Platform version 4.14.
-    Is it still in full support, or has it moved to a later phase?
+    Report whether it was found and its current lifecycle status.
   schema:
     type: object
     properties:
@@ -176,15 +168,16 @@
 # Test 7: Multiple operators batch check from proposal context.
 # Only test the 2 operators that HAVE lifecycle data (cluster-logging, web-terminal).
 - name: plc_batch_known_operators_only
-  query: >
-    From a proposal's readiness data, two operators need lifecycle verification:
+  query: |
+    Use the product-lifecycle skill to check lifecycle status for these
+    2 operators against OCP 4.21:
 
     1. cluster-logging (package: cluster-logging)
     2. web-terminal (package: web-terminal)
 
-    Use the product-lifecycle skill to check lifecycle status for these
-    2 operators against OCP 4.21. Are both products found? Is either one
-    end-of-life?
+    For each operator, look up its lifecycle data. Report whether both
+    were found in the API and whether any of their OCP 4.21-compatible
+    versions are end-of-life.
   schema:
     type: object
     properties:
