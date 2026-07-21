@@ -94,9 +94,9 @@
     product_found: true
     has_supported_version_for_421: false
 
-# Test 4: compliance-operator — found by product name search, v1.9 is supported.
-# Note: searching by package name may not find this operator, but searching
-# by product name ("compliance operator") does. The agent may use either approach.
+# Test 4: compliance-operator — v1.9 is supported.
+# The PLC API indexes this operator by package name ("compliance-operator")
+# and by product name ("compliance operator"). The agent may use either approach.
 - name: plc_compliance_operator_status
   query: >
     The compliance-operator v1.9.0 was found installed (package: compliance-operator)
@@ -127,8 +127,8 @@
     target OCP version 4.21 is still in full support.
 
     Use the product-lifecycle skill to look up "Red Hat OpenShift
-    Container Platform" and check version 4.21's. Report whether
-    it was found and its current lifecycle status.
+    Container Platform" and check version 4.21's lifecycle status.
+    Report whether it was found and its current lifecycle status.
   schema:
     type: object
     properties:
@@ -166,7 +166,7 @@
     status: "extended"
 
 # Test 7: Multiple operators batch check from proposal context.
-# Only test the 2 operators that HAVE lifecycle data (cluster-logging, web-terminal).
+# Test with 2 operators known to have lifecycle data (cluster-logging, web-terminal).
 - name: plc_batch_known_operators_only
   query: |
     Use the product-lifecycle skill to check lifecycle status for these

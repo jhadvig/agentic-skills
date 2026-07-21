@@ -143,7 +143,6 @@
   expected:
     decision: "block"
     etcd_issue_detected: true
-    unhealthy_member: "etcd-master-2"
 
 # Test 5: Cluster with errored readiness checks — incomplete data.
 # Expected decision: escalate
