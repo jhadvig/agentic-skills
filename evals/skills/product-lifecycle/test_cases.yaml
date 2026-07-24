@@ -31,7 +31,7 @@
         description: "Total number of operators checked against the Product Life Cycle API"
       operators_api_tracked_count:
         type: integer
-        description: "Number of operators whose package was found in the PLC API (found=true, regardless of version match)"
+        description: "Number of operators whose package was found in the PLC API (no error reported, regardless of version match)"
       operators_version_tracked_count:
         type: integer
         description: "Number of operators whose specific version is tracked in the PLC API (package found and version matched)"
