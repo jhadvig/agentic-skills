@@ -5,20 +5,21 @@
 #
 
 # Test 1: Simulate proposal request with 5 OLM operators.
-# Batch check — 5 operators, count which have lifecycle data.
+# Batch check — 5 operators, count which have lifecycle data, which are compatible.
+# devworkspace-operator is not found, web-terminal version 1.16 is not present, cluster-logging 6.3 is not compatible with OCP 4.21
 - name: plc_proposal_olm_batch_check
   query: |
     Use the product-lifecycle skill to look up lifecycle data for
     each of these 5 operators against OCP 4.21:
 
     - compliance-operator v1.9.0 (channel: stable, package: compliance-operator)
-    - cluster-logging v6.5.1 (channel: stable-6.5, package: cluster-logging)
+    - cluster-logging v6.3.1 (channel: stable-6.3, package: cluster-logging)
     - devworkspace-operator v0.41.0 (channel: fast, package: devworkspace-operator)
     - openshift-pipelines-operator-rh v1.22.0 (channel: latest, package: openshift-pipelines-operator-rh)
     - web-terminal v1.16.0 (channel: fast, package: web-terminal)
 
-    For each operator, check if the Product Life Cycle API has lifecycle data.
-    Report the total checked, how many have data, and how many do not.
+    For each operator, check if the Product Life Cycle API has lifecycle data for the installed version.
+    Report the total checked, the total found in the API, how many whose version is present, how many compatible with OCP 4.21
   schema:
     type: object
     properties:
@@ -28,17 +29,22 @@
       operators_checked:
         type: integer
         description: "Total number of operators checked against the Product Life Cycle API"
-      operators_with_lifecycle_data:
+      operators_api_tracked_count:
         type: integer
-        description: "Number of operators that have lifecycle data in the PLC API"
-      operators_without_lifecycle_data:
+        description: "Number of operators whose package was found in the PLC API (found=true, regardless of version match)"
+      operators_version_tracked_count:
         type: integer
-        description: "Number of operators with no lifecycle data (unavailable)"
-    required: ["olm_check_ran", "operators_checked", "operators_with_lifecycle_data", "operators_without_lifecycle_data"]
+        description: "Number of operators whose specific version is tracked in the PLC API (package found and version matched)"
+      operators_ocp_compatible_count:
+        type: integer
+        description: "Number of operators with ocp_compatible=true for the target OCP version"
+    required: ["olm_check_ran", "operators_checked", "operators_api_tracked_count", "operators_version_tracked_count", "operators_ocp_compatible_count"]
   expected:
     olm_check_ran: true
     operators_checked: 5
-    operators_without_lifecycle_data: 2
+    operators_api_tracked_count: 4
+    operators_version_tracked_count: 3
+    operators_ocp_compatible_count: 2
 
 # Test 2: Verify cluster-logging lifecycle status specifically.
 # cluster-logging v6.5 is "Full Support" and compatible with OCP 4.21.
